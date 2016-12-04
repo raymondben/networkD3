@@ -46,84 +46,16 @@
 #' @param node_label_colour string or JS_EVAL: as for \code{node_fill_colour}, but controlling the node label colour
 #'
 #' @examples
-#' # Load data
-#' data(MisLinks)
-#' data(MisNodes)
-#' # Create graph
-#' forceNetwork(Links = MisLinks, Nodes = MisNodes, Source = "source",
-#'              Target = "target", Value = "value", NodeID = "name",
-#'              Group = "group", opacity = 0.4, zoom = TRUE)
-#'
-#' # Create graph with legend and varying node radius
-#' forceNetwork(Links = MisLinks, Nodes = MisNodes, Source = "source",
-#'              Target = "target", Value = "value", NodeID = "name",
-#'              Nodesize = "size",
-#'              radiusCalculation = "Math.sqrt(d.nodesize)+6",
-#'              Group = "group", opacity = 0.4, legend = TRUE)
-#'
-#' \dontrun{
-#' #### JSON Data Example
-#' # Load data JSON formated data into two R data frames
-#' # Create URL. paste0 used purely to keep within line width.
-#' URL <- paste0("https://cdn.rawgit.com/christophergandrud/networkD3/",
-#'               "master/JSONdata/miserables.json")
-#'
-#' MisJson <- jsonlite::fromJSON(URL)
-#'
-#' # Create graph
-#' forceNetwork(Links = MisJson$links, Nodes = MisJson$nodes, Source = "source",
-#'              Target = "target", Value = "value", NodeID = "name",
-#'              Group = "group", opacity = 0.4)
-#'
-#' # Create graph with zooming
-#' forceNetwork(Links = MisJson$links, Nodes = MisJson$nodes, Source = "source",
-#'              Target = "target", Value = "value", NodeID = "name",
-#'              Group = "group", opacity = 0.4, zoom = TRUE)
-#'
-#'
-#' # Create a bounded graph
-#' forceNetwork(Links = MisJson$links, Nodes = MisJson$nodes, Source = "source",
-#'              Target = "target", Value = "value", NodeID = "name",
-#'              Group = "group", opacity = 0.4, bounded = TRUE)
-#'
-#' # Create graph with node text faintly visible when no hovering
-#' forceNetwork(Links = MisJson$links, Nodes = MisJson$nodes, Source = "source",
-#'              Target = "target", Value = "value", NodeID = "name",
-#'              Group = "group", opacity = 0.4, bounded = TRUE,
-#'              opacityNoHover = TRUE)
-#'
-#' ## Specify colours for specific edges
-#' # Find links to Valjean (11)
-#' which(MisNodes == "Valjean", arr = TRUE)[1] - 1
-#' ValjeanInds = which(MisLinks == 11, arr = TRUE)[, 1]
-#'
-#' # Create a colour vector
-#' ValjeanCols = ifelse(1:nrow(MisLinks) %in% ValjeanInds, "#bf3eff", "#666")
-#'
-#' forceNetwork(Links = MisLinks, Nodes = MisNodes, Source = "source",
-#'              Target = "target", Value = "value", NodeID = "name",
-#'              Group = "group", opacity = 0.8, linkColour = ValjeanCols)
-#'
-#'
-#' ## Create graph with alert pop-up when a node is clicked.  You're
-#' # unlikely to want to do exactly this, but you might use
-#' # Shiny.onInputChange() to allocate d.XXX to an element of input
-#' # for use in a Shiny app.
-#'
-#' MyClickScript <- 'alert("You clicked " + d.name + " which is in row " +
-#'        (d.index + 1) +  " of your original R data frame");'
-#'
-#' forceNetwork(Links = MisLinks, Nodes = MisNodes, Source = "source",
-#'              Target = "target", Value = "value", NodeID = "name",
-#'              Group = "group", opacity = 1, zoom = FALSE,
-#'              bounded = TRUE, clickAction = MyClickScript)
-#' }
-#'
-
+#' ## create dummy data
+#' nodes <- data.frame(name=c("Abacetus simplex","Brachidius crassicornis","Catadromus goliath","Darodilia robusta"),N=c(100,120,400,30),some_property=runif(4)*10+10,colour=c("#FF0000","#00FF00","#0000FF","#FFFF00"),stringsAsFactors=FALSE)
+#' links <- data.frame(from=c("Abacetus simplex","Brachidius crassicornis","Abacetus simplex","Darodilia robusta"),to=c("Brachidius crassicornis","Catadromus goliath","Catadromus goliath","Catadromus goliath"),edge_width="3 px",edgevar=c(.3,.3,.1,2),colour=c("#555"),stringsAsFactors=FALSE)
+#' 
+#' forceNetwork4(Links=links,Nodes=nodes,Source="from",Target="to",NodeID="name",node_radius=JS("Math.sqrt(d.N)*2+10"),node_fill_opacity=0.75,bounded=FALSE,zoom=TRUE,directed=TRUE,node_fill_colour="colour")
+#' 
 #' @source
 #' D3.js was created by Michael Bostock. See \url{http://d3js.org/} and, more
-#' specifically for force directed networks
-#' \url{https://github.com/mbostock/d3/wiki/Force-Layout}.
+#' specifically for force directed networks. \code{forceNetwork4} uses D3 v4, see:
+#' \url{https://github.com/d3/d3/blob/master/API.md#forces-d3-force}.
 #' @seealso \code{\link{JS}}.
 #'
 #' @export
@@ -146,9 +78,9 @@ forceNetwork4 <- function(Links,
                           node_onclick=NULL,
                           node_mouseover="default",
                           node_mouseout="default",
-                          link_stroke_width="3 px", 
+                          link_stroke_width=3,
                           link_stroke_colour="#777",
-                          link_distance=50,
+                          link_distance=150,
                           link_curvature=500,
                           fontSize = 12,
                           fontFamily = "serif",
