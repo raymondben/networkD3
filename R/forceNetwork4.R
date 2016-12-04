@@ -1,36 +1,21 @@
-## to do
-## node mouseover, mouseout, click
-## label dx,dy,fontsize family,colour( fill), opacity
-## update docs and examples
-
-
-#' Create a D3 JavaScript force directed network graph.
+#' Create a D3 JavaScript force directed network graph, using v4 of the D3 library.
 #'
 #' @param Links a data frame object with the links between the nodes. It should
-#' include the \code{Source} and \code{Target} for each link. These should be
-#' numbered starting from 0. An optional \code{Value} variable can be included
-#' to specify how close the nodes are to one another.
+#' include the \code{Source} and \code{Target} for each link. These can be 
+#' numbered starting from 0 (as with the \code{forceNetwork} function.
+#' Alternatively, they can be strings (node identifiers) and will be converted to
+#' numeric indexes internally.
 #' @param Nodes a data frame containing the node id and properties of the nodes.
-#' If no ID is specified then the nodes must be in the same order as the Source
-#' variable column in the \code{Links} data frame. Currently only a grouping
-#' variable is allowed.
 #' @param Source character string naming the network source variable in the
 #' \code{Links} data frame.
 #' @param Target character string naming the network target variable in the
 #' \code{Links} data frame.
-#' @param Value character string naming the variable in the \code{Links} data
-#' frame for how wide the links are.
 #' @param NodeID character string specifying the node IDs in the \code{Nodes}
 #' data frame.
 #' @param height numeric height for the network graph's frame area in pixels.
 #' @param width numeric width for the network graph's frame area in pixels.
 #' @param fontSize numeric font size in pixels for the node text labels.
 #' @param fontFamily font family for the node text labels.
-#' @param linkDistance numeric or character string. Either numberic fixed
-#' distance between the links in pixels (actually arbitrary relative to the
-#' diagram's size). Or a JavaScript function, possibly to weight by
-#' \code{Value}. For example:
-#' \code{linkDistance = JS("function(d){return d.value * 10}")}.
 #' @param charge numeric value indicating either the strength of the node
 #' repulsion (negative value) or attraction (positive value).
 #' @param zoom logical value to enable (\code{TRUE}) or disable (\code{FALSE})
@@ -38,12 +23,12 @@
 #' @param bounded logical value to enable (\code{TRUE}) or disable
 #' (\code{FALSE}) the bounding box limiting the graph's extent. See
 #' \url{http://bl.ocks.org/mbostock/1129492}.
-#' @param clickAction character string with a JavaScript expression to evaluate
-#' when a node is clicked.
+#' @param node_onclick JS expression to evaluate when a node is clicked.
+#' @param node_mouseover JS expression
+#' @param node_mouseout JS expression
 #' @param link_onclick JS expression
 #' @param link_mouseover JS expression, e.g. JS("d3.select(this).style(\"stroke\",\"red\");")
 #' @param link_mouseout JS expression
-#' @param node_mouseover JS expression
 #' @param directed logical value to add arrows to edges
 #' @param collision logical value to do collision detection and prevent nodes from overlapping
 #' @param node_fill_colour string or JS_EVAL: either (a) a colour (e.g. "#777") to be applied to all nodes, (b) a column name (where this column in the nodes data.frame holds character colour strings), or (c) a JS_EVAL object representing a javascript expression such as JS("d3.scaleOrdinal(d3.schemeCategory10).domain([0,1,2])(d.group)")
@@ -55,7 +40,10 @@
 #' @param link_distance string, numeric, or JS_EVAL: as for \code{node_fill_opacity} but controlling the length of each link
 #' @param link_stroke_colour string or JS_EVAL: as for \code{node_fill_colour}, but controlling the link stroke colour
 #' @param link_curvature string or JS_EVAL: as for \code{node_fill_opacity}, but controlling the curvature of each link. Use a large number for straight lines
-#' @param nodel_label_opacity string or JS_EVAL: as for \code{node_fill_opacity}, but controlling the opacity of the node labels
+#' @param node_label_opacity string or JS_EVAL: as for \code{node_fill_opacity}, but controlling the opacity of the node labels
+#' @param node_label_dx numeric or JS_EVAL: x-offset of the label with respect to the node
+#' @param node_label_dy numeric or JS_EVAL: y-offset of the label with respect to the node
+#' @param node_label_colour string or JS_EVAL: as for \code{node_fill_colour}, but controlling the node label colour
 #'
 #' @examples
 #' # Load data
@@ -143,7 +131,6 @@ forceNetwork4 <- function(Links,
                           Nodes,
                           Source,
                           Target,
-                          Value,
                           NodeID,
                           height = NULL,
                           width = NULL,
@@ -153,6 +140,10 @@ forceNetwork4 <- function(Links,
                           node_stroke_width="1.5 px", 
                           node_radius=15,
                           node_label_opacity=1,
+                          node_label_dx=20,
+                          node_label_dy=10,
+                          node_label_colour="#222",
+                          node_onclick=NULL,
                           node_mouseover="default",
                           node_mouseout="default",
                           link_stroke_width="3 px", 
@@ -164,7 +155,6 @@ forceNetwork4 <- function(Links,
                           charge = -200,
                           zoom = FALSE,
                           bounded = FALSE,
-                          clickAction = NULL,
                           link_onclick = NULL,
                           link_mouseover = NULL,
                           link_mouseout = NULL,
@@ -215,28 +205,25 @@ forceNetwork4 <- function(Links,
     link_stroke_colour <- clr_to_js(link_stroke_colour,Links)
     link_curvature <- clr_to_js(link_curvature,Links)
     link_distance <- clr_to_js(link_distance,Links)
+
+    ## label properties
+    node_label_dx <- clr_to_js(node_label_dx,Nodes)
+    node_label_dy <- clr_to_js(node_label_dy,Nodes)
+    node_label_colour <- clr_to_js(node_label_colour,Nodes)
     
     names(Links)[names(Links)==Source] <- "source"
     names(Links)[names(Links)==Target] <- "target"
     names(Nodes)[names(Nodes)==NodeID] <- "name"
-    if (!missing(Value)) names(Links)[names(Links)==Value] <- "value"
+    ##if (!missing(Value)) names(Links)[names(Links)==Value] <- "value"
+    Links$value <- 0 ## dummy. Don't understand why this is still needed. It has no effect
 
     # create options
     options = list(
-        ##NodeID = NodeID,
-        ##Group = Group,
         fontSize = fontSize,
         fontFamily = fontFamily,
-        clickTextSize = fontSize * 1.5,
-        ##linkDistance = linkDistance,
-        ##linkWidth = linkWidth,
         charge = charge,
-                                        # linkColour = linkColour,
-        ##opacity = opacity,
         zoom = zoom,
-        ##legend = legend,
         bounded = bounded,
-        clickAction = clickAction,
         directed = directed,
         collision = collision,
         node_fill_colour=node_fill_colour,
@@ -245,6 +232,9 @@ forceNetwork4 <- function(Links,
         node_stroke_width=node_stroke_width,
         node_radius=node_radius,
         node_label_opacity=node_label_opacity,
+        node_label_dx=node_label_dx,
+        node_label_dy=node_label_dy,
+        node_label_colour=node_label_colour,
         link_stroke_width=link_stroke_width,
         link_stroke_colour=link_stroke_colour,
         link_curvature=link_curvature,
@@ -252,6 +242,7 @@ forceNetwork4 <- function(Links,
         link_mouseover=as.character(link_mouseover),
         link_mouseout=as.character(link_mouseout),
         link_onclick=as.character(link_onclick),
+        node_onclick=as.character(node_onclick),
         node_mouseover=as.character(node_mouseover),
         node_mouseout=as.character(node_mouseout)
     )

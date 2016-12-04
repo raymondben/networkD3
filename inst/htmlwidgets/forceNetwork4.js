@@ -40,6 +40,9 @@ HTMLWidgets.widget({
       var node_stroke_colour_function = Function("d",options.node_stroke_colour);
       var node_stroke_width_function = Function("d",options.node_stroke_width);
       var node_label_opacity_function = Function("d",options.node_label_opacity);
+      var node_label_dx_function = Function("d",options.node_label_dx);
+      var node_label_dy_function = Function("d",options.node_label_dy);
+      var node_label_colour_function = Function("d",options.node_label_colour);
       var link_stroke_width_function = Function("d",options.link_stroke_width);
       var link_stroke_colour_function = Function("d",options.link_stroke_colour);
       var link_curvature_function = Function("d",options.link_curvature);
@@ -47,6 +50,7 @@ HTMLWidgets.widget({
       var link_onclick_function = Function("d",options.link_onclick);
       var link_mouseover_function = Function("d",options.link_mouseover);
       var link_mouseout_function = Function("d",options.link_mouseout);
+      var node_onclick_function = Function("d",options.node_onclick);
       var node_mouseover_function;
       if (options.node_mouseover=="default") {
 	  node_mouseover_function=default_node_mouseover;
@@ -143,7 +147,7 @@ HTMLWidgets.widget({
 	  .style("fill", node_fill_colour_function)
 	  .on("mouseover", node_mouseover_function)
 	  .on("mouseout", node_mouseout_function)
-	  .on("click", click)
+	  .on("click", node_onclick_function)
 	  .call(d3.drag()
 		.on("start", dragstarted)
 		.on("drag", dragged)
@@ -151,11 +155,11 @@ HTMLWidgets.widget({
       
       node.append("text")
 	  //.attr("class", "nodetext")
-	  .attr("dx", 12)
-	  .attr("dy", ".35em")
+	  .attr("dx", node_label_dx_function)
+	  .attr("dy", node_label_dy_function)
 	  .text(function(d) { return d.name })
 	  .style("font", options.fontSize + "px " + options.fontFamily)
-	  .style("fill","#222")
+	  .style("fill",node_label_colour_function)
 	  .style("opacity",node_label_opacity_function)
 	  .style("pointer-events", "none");
 
@@ -180,60 +184,28 @@ HTMLWidgets.widget({
 	  g.attr("transform", d3.event.transform);
       }
 
-      /*
-    function tick() {
-      node.attr("transform", function(d) {
-        if(options.bounded){ // adds bounding box
-            d.x = Math.max(nodeSize(d), Math.min(width - nodeSize(d), d.x));
-            d.y = Math.max(nodeSize(d), Math.min(height - nodeSize(d), d.y));
-        }
-        
-        return "translate(" + d.x + "," + d.y + ")"});
-        
-      path
-        .attr("x1", function(d) { return d.source.x; })
-        .attr("y1", function(d) { return d.source.y; })
-        .attr("x2", function(d) { return d.target.x; })
-            .attr("y2", function(d) { return d.target.y; })
-	    .attr("d", function(d) {
-		var dx = d.target.x - d.source.x,
-		    dy = d.target.y - d.source.y,
-		    dr = Math.sqrt(dx * dx + dy * dy);
-		return "M" + 
-		    d.source.x + "," + 
-		    d.source.y + "A" + 
-		    dr + "," + dr + " 0 0,1 " + 
-		    d.target.x + "," + 
-		    d.target.y;
-	    });	
-    }
-*/
-    function default_node_mouseover() {
-	d3.select(this).transition().duration(500)
-            .attr("r",function(d){return node_radius_function(d)*1.5;});
-	d3.select(this.parentNode).select("text").transition()
-            .duration(750)
-            .attr("x", 13)
-            .style("font-size",options.fontSize*1.5 + "px")
-            .style("opacity",1);
-    }
+      function default_node_mouseover() {
+	  d3.select(this).transition().duration(500)
+              .attr("r",function(d){return node_radius_function(d)*1.5;});
+	  d3.select(this.parentNode).select("text").transition()
+              .duration(750)
+              .attr("x", 13)
+              .style("font-size",options.fontSize*1.5 + "px")
+              .style("opacity",1);
+      }
 
-    function default_node_mouseout() {
-	d3.select(this)
-	    .transition()
-            .duration(500)
-        .attr("r",function(d){return node_radius_function(d);});
-      d3.select(this.parentNode).select("text").transition()
-            .duration(750)
-            .attr("x", 0)
-            .style("font-size", options.fontSize + "px") 
-            .style("opacity",node_label_opacity_function);
-    }
-    
-    function click(d) {
-      return eval(options.clickAction)
-    }
-    
+      function default_node_mouseout() {
+	  d3.select(this)
+	      .transition()
+              .duration(500)
+              .attr("r",function(d){return node_radius_function(d);});
+	  d3.select(this.parentNode).select("text").transition()
+              .duration(750)
+              .attr("x", 0)
+              .style("font-size", options.fontSize + "px") 
+              .style("opacity",node_label_opacity_function);
+      }
+      
       // make font-family consistent across all elements
       //    d3.select(el).selectAll('text').style('font-family', options.fontFamily);
       simulation

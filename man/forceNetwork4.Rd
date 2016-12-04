@@ -2,32 +2,33 @@
 % Please edit documentation in R/forceNetwork4.R
 \name{forceNetwork4}
 \alias{forceNetwork4}
-\title{Create a D3 JavaScript force directed network graph.}
+\title{Create a D3 JavaScript force directed network graph, using v4 of the D3 library.}
 \source{
 D3.js was created by Michael Bostock. See \url{http://d3js.org/} and, more
 specifically for force directed networks
 \url{https://github.com/mbostock/d3/wiki/Force-Layout}.
 }
 \usage{
-forceNetwork4(Links, Nodes, Source, Target, Value, NodeID, Nodesize, Group,
-  height = NULL, width = NULL, colourScale = JS("d3.scale.category20()"),
-  fontSize = 7, fontFamily = "serif", linkDistance = 50,
-  linkWidth = JS("function(d) { return Math.sqrt(d.value); }"),
-  radiusCalculation = JS(" Math.sqrt(d.nodesize)+6"), charge = -120,
-  linkColour = "#666", opacity = 0.6, nodeOpacity = 1, zoom = FALSE,
-  legend = FALSE, bounded = FALSE, opacityNoHover = 0,
-  clickAction = NULL, edgeMouseOver = NULL, directed = FALSE)
+forceNetwork4(Links, Nodes, Source, Target, NodeID, height = NULL,
+  width = NULL, node_fill_colour = "#008", node_fill_opacity = 1,
+  node_stroke_colour = "#000", node_stroke_width = "1.5 px",
+  node_radius = 15, node_label_opacity = 1, node_label_dx = 20,
+  node_label_dy = 10, node_label_colour = "#222", node_onclick = NULL,
+  node_mouseover = "default", node_mouseout = "default",
+  link_stroke_width = "3 px", link_stroke_colour = "#777",
+  link_distance = 50, link_curvature = 500, fontSize = 12,
+  fontFamily = "serif", charge = -200, zoom = FALSE, bounded = FALSE,
+  link_onclick = NULL, link_mouseover = NULL, link_mouseout = NULL,
+  directed = FALSE, collision = FALSE)
 }
 \arguments{
 \item{Links}{a data frame object with the links between the nodes. It should
-include the \code{Source} and \code{Target} for each link. These should be
-numbered starting from 0. An optional \code{Value} variable can be included
-to specify how close the nodes are to one another.}
+include the \code{Source} and \code{Target} for each link. These can be 
+numbered starting from 0 (as with the \code{forceNetwork} function.
+Alternatively, they can be strings (node identifiers) and will be converted to
+numeric indexes internally.}
 
-\item{Nodes}{a data frame containing the node id and properties of the nodes.
-If no ID is specified then the nodes must be in the same order as the Source
-variable column in the \code{Links} data frame. Currently only a grouping
-variable is allowed.}
+\item{Nodes}{a data frame containing the node id and properties of the nodes.}
 
 \item{Source}{character string naming the network source variable in the
 \code{Links} data frame.}
@@ -35,78 +36,71 @@ variable is allowed.}
 \item{Target}{character string naming the network target variable in the
 \code{Links} data frame.}
 
-\item{Value}{character string naming the variable in the \code{Links} data
-frame for how wide the links are.}
-
 \item{NodeID}{character string specifying the node IDs in the \code{Nodes}
 data frame.}
-
-\item{Nodesize}{character string specifying the a column in the \code{Nodes}
-data frame with some value to vary the node radius's with. See also
-\code{radiusCalculation}.}
-
-\item{Group}{character string specifying the group of each node in the
-\code{Nodes} data frame.}
 
 \item{height}{numeric height for the network graph's frame area in pixels.}
 
 \item{width}{numeric width for the network graph's frame area in pixels.}
 
-\item{colourScale}{character string specifying the categorical colour
-scale for the nodes. See
-\url{https://github.com/mbostock/d3/wiki/Ordinal-Scales}.}
+\item{node_fill_colour}{string or JS_EVAL: either (a) a colour (e.g. "#777") to be applied to all nodes, (b) a column name (where this column in the nodes data.frame holds character colour strings), or (c) a JS_EVAL object representing a javascript expression such as JS("d3.scaleOrdinal(d3.schemeCategory10).domain([0,1,2])(d.group)")}
+
+\item{node_fill_opacity}{string, numeric, or JS_EVAL: either (a) a constant, numeric opacity value (0-1) to be applied to all nodes, (b) a column name (where this column in the nodes data.frame holds an opacity value for each node), or (c) a JS_EVAL object representing a javascript expression such as JS("d.value/100")}
+
+\item{node_stroke_colour}{string or JS_EVAL: as for \code{node_fill_colour}, but controlling the node stroke colour}
+
+\item{node_stroke_width}{string, numeric, or JS_EVAL: as for \code{node_fill_opacity} but controlling node stroke width}
+
+\item{node_radius}{string, numeric, or JS_EVAL: as for \code{node_fill_opacity} but controlling node radius}
+
+\item{node_label_opacity}{string or JS_EVAL: as for \code{node_fill_opacity}, but controlling the opacity of the node labels}
+
+\item{node_label_dx}{numeric or JS_EVAL: x-offset of the label with respect to the node}
+
+\item{node_label_dy}{numeric or JS_EVAL: y-offset of the label with respect to the node}
+
+\item{node_label_colour}{string or JS_EVAL: as for \code{node_fill_colour}, but controlling the node label colour}
+
+\item{node_onclick}{JS expression to evaluate when a node is clicked.}
+
+\item{node_mouseover}{JS expression}
+
+\item{node_mouseout}{JS expression}
+
+\item{link_stroke_width}{string, numeric, or JS_EVAL: as for \code{node_fill_opacity} but controlling link stroke width}
+
+\item{link_stroke_colour}{string or JS_EVAL: as for \code{node_fill_colour}, but controlling the link stroke colour}
+
+\item{link_distance}{string, numeric, or JS_EVAL: as for \code{node_fill_opacity} but controlling the length of each link}
+
+\item{link_curvature}{string or JS_EVAL: as for \code{node_fill_opacity}, but controlling the curvature of each link. Use a large number for straight lines}
 
 \item{fontSize}{numeric font size in pixels for the node text labels.}
 
 \item{fontFamily}{font family for the node text labels.}
 
-\item{linkDistance}{numeric or character string. Either numberic fixed
-distance between the links in pixels (actually arbitrary relative to the
-diagram's size). Or a JavaScript function, possibly to weight by
-\code{Value}. For example:
-\code{linkDistance = JS("function(d){return d.value * 10}")}.}
-
-\item{linkWidth}{numeric or character string. Can be a numeric fixed width in
-pixels (arbitrary relative to the diagram's size). Or a JavaScript function,
-possibly to weight by \code{Value}. The default is
-\code{linkWidth = JS("function(d) { return Math.sqrt(d.value); }")}.}
-
-\item{radiusCalculation}{character string. A javascript mathematical
-expression, to weight the radius by \code{Nodesize}. The default value is
-\code{radiusCalculation = JS("Math.sqrt(d.nodesize)+6")}.}
-
 \item{charge}{numeric value indicating either the strength of the node
 repulsion (negative value) or attraction (positive value).}
 
-\item{linkColour}{character vector specifying the colour(s) you want the link
-lines to be. Multiple formats supported (e.g. hexadecimal).}
-
-\item{opacity}{numeric value of the proportion opaque you would like the
-graph elements to be.}
-
-\item{nodeOpacity}{numeric opacity of nodes}
-
 \item{zoom}{logical value to enable (\code{TRUE}) or disable (\code{FALSE})
 zooming.}
-
-\item{legend}{logical value to enable node colour legends.}
 
 \item{bounded}{logical value to enable (\code{TRUE}) or disable
 (\code{FALSE}) the bounding box limiting the graph's extent. See
 \url{http://bl.ocks.org/mbostock/1129492}.}
 
-\item{opacityNoHover}{numeric value of the opacity proportion for node labels
-text when the mouse is not hovering over them.}
+\item{link_onclick}{JS expression}
 
-\item{clickAction}{character string with a JavaScript expression to evaluate
-when a node is clicked.}
+\item{link_mouseover}{JS expression, e.g. JS("d3.select(this).style(\"stroke\",\"red\");")}
 
-\item{edgeMouseOver}{character JS expression}
+\item{link_mouseout}{JS expression}
 
 \item{directed}{logical value to add arrows to edges}
+
+\item{collision}{logical value to do collision detection and prevent nodes from overlapping}
 }
 \description{
-Create a D3 JavaScript force directed network graph.
+Create a D3 JavaScript force directed network graph, using v4 of the D3 library.
 }
 \examples{
 # Load data
