@@ -24,9 +24,9 @@ forceNetwork4(Links, Nodes, Source, Target, NodeID, height = NULL,
 \arguments{
 \item{Links}{a data frame object with the links between the nodes. It should
 include the \code{Source} and \code{Target} for each link. These can be 
-numbered starting from 0 (as with the \code{forceNetwork} function.
-Alternatively, they can be strings (node identifiers) and will be converted to
-numeric indexes internally.}
+numbered starting from 0 (as with the \code{forceNetwork} function).
+Alternatively, they can be strings (node identifiers, matching those in the Nodes
+data.frame) and will be converted to numeric indexes internally.}
 
 \item{Nodes}{a data frame containing the node id and properties of the nodes.}
 
