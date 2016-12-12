@@ -16,6 +16,7 @@
 #' @param width numeric width for the network graph's frame area in pixels.
 #' @param fontSize numeric font size in pixels for the node text labels.
 #' @param fontFamily font family for the node text labels.
+#' @param font_weight e.g. "bold"
 #' @param charge numeric value indicating either the strength of the node
 #' repulsion (negative value) or attraction (positive value).
 #' @param zoom logical value to enable (\code{TRUE}) or disable (\code{FALSE})
@@ -44,6 +45,7 @@
 #' @param node_label_dx numeric or JS_EVAL: x-offset of the label with respect to the node
 #' @param node_label_dy numeric or JS_EVAL: y-offset of the label with respect to the node
 #' @param node_label_colour string or JS_EVAL: as for \code{node_fill_colour}, but controlling the node label colour
+#' @param node_label_stroke_colour string or JS_EVAL: as for \code{node_fill_colour}, but controlling the node label stroke (outline) colour
 #'
 #' @examples
 #' ## create dummy data
@@ -75,6 +77,7 @@ forceNetwork4 <- function(Links,
                           node_label_dx=20,
                           node_label_dy=10,
                           node_label_colour="#222",
+                          node_label_stroke_colour="#fff",
                           node_onclick=NULL,
                           node_mouseover="default",
                           node_mouseout="default",
@@ -84,6 +87,7 @@ forceNetwork4 <- function(Links,
                           link_curvature=500,
                           fontSize = 12,
                           fontFamily = "serif",
+                          font_weight = "bold",
                           charge = -200,
                           zoom = FALSE,
                           bounded = FALSE,
@@ -142,6 +146,7 @@ forceNetwork4 <- function(Links,
     node_label_dx <- clr_to_js(node_label_dx,Nodes)
     node_label_dy <- clr_to_js(node_label_dy,Nodes)
     node_label_colour <- clr_to_js(node_label_colour,Nodes)
+    node_label_stroke_colour <- clr_to_js(node_label_stroke_colour,Nodes)
     
     names(Links)[names(Links)==Source] <- "source"
     names(Links)[names(Links)==Target] <- "target"
@@ -153,6 +158,7 @@ forceNetwork4 <- function(Links,
     options = list(
         fontSize = fontSize,
         fontFamily = fontFamily,
+        font_weight = font_weight,
         charge = charge,
         zoom = zoom,
         bounded = bounded,
@@ -167,6 +173,7 @@ forceNetwork4 <- function(Links,
         node_label_dx=node_label_dx,
         node_label_dy=node_label_dy,
         node_label_colour=node_label_colour,
+        node_label_stroke_colour=node_label_stroke_colour,
         link_stroke_width=link_stroke_width,
         link_stroke_colour=link_stroke_colour,
         link_curvature=link_curvature,

@@ -13,13 +13,14 @@ forceNetwork4(Links, Nodes, Source, Target, NodeID, height = NULL,
   width = NULL, node_fill_colour = "#008", node_fill_opacity = 1,
   node_stroke_colour = "#000", node_stroke_width = "1.5 px",
   node_radius = 15, node_label_opacity = 1, node_label_dx = 20,
-  node_label_dy = 10, node_label_colour = "#222", node_onclick = NULL,
+  node_label_dy = 10, node_label_colour = "#222",
+  node_label_stroke_colour = "#fff", node_onclick = NULL,
   node_mouseover = "default", node_mouseout = "default",
   link_stroke_width = 3, link_stroke_colour = "#777", link_distance = 150,
   link_curvature = 500, fontSize = 12, fontFamily = "serif",
-  charge = -200, zoom = FALSE, bounded = FALSE, link_onclick = NULL,
-  link_mouseover = NULL, link_mouseout = NULL, directed = FALSE,
-  collision = FALSE)
+  font_weight = "bold", charge = -200, zoom = FALSE, bounded = FALSE,
+  link_onclick = NULL, link_mouseover = NULL, link_mouseout = NULL,
+  directed = FALSE, collision = FALSE)
 }
 \arguments{
 \item{Links}{a data frame object with the links between the nodes. It should
@@ -61,6 +62,8 @@ data frame.}
 
 \item{node_label_colour}{string or JS_EVAL: as for \code{node_fill_colour}, but controlling the node label colour}
 
+\item{node_label_stroke_colour}{string or JS_EVAL: as for \code{node_fill_colour}, but controlling the node label stroke (outline) colour}
+
 \item{node_onclick}{JS expression to evaluate when a node is clicked.}
 
 \item{node_mouseover}{JS expression}
@@ -78,6 +81,8 @@ data frame.}
 \item{fontSize}{numeric font size in pixels for the node text labels.}
 
 \item{fontFamily}{font family for the node text labels.}
+
+\item{font_weight}{e.g. "bold"}
 
 \item{charge}{numeric value indicating either the strength of the node
 repulsion (negative value) or attraction (positive value).}

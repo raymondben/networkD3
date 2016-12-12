@@ -43,6 +43,7 @@ HTMLWidgets.widget({
       var node_label_dx_function = Function("d",options.node_label_dx);
       var node_label_dy_function = Function("d",options.node_label_dy);
       var node_label_colour_function = Function("d",options.node_label_colour);
+      var node_label_stroke_colour_function = Function("d",options.node_label_stroke_colour);
       var link_stroke_width_function = Function("d",options.link_stroke_width);
       var link_stroke_colour_function = Function("d",options.link_stroke_colour);
       var link_curvature_function = Function("d",options.link_curvature);
@@ -159,12 +160,14 @@ HTMLWidgets.widget({
 	  .attr("dy", node_label_dy_function)
 	  .text(function(d) { return d.name })
 	  .style("font", options.fontSize + "px " + options.fontFamily)
+	  .style("font-weight",options.font_weight)
 	  .style("fill",node_label_colour_function)
+	  .style("stroke",node_label_stroke_colour_function)
 	  .style("opacity",node_label_opacity_function)
 	  .style("pointer-events", "none");
 
       function dragstarted(d) {
-	  if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+	  if (!d3.event.active) simulation.alphaTarget(0.1).restart();
 	  d.fx = d.x;
 	  d.fy = d.y;
       }
